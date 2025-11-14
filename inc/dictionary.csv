@@ -1,0 +1,39 @@
+﻿key;en;de;it
+triangular;triangular;trigonal;triangolare
+quadratic;quadratic;quadratisch;quadratico
+hexagonal;hexagonal;hexagonal;esagonale
+egyptian;Egyptian;ägyptisch;egiziano
+inadmissible;Inadmissible game settings!;Unzulässige Spieleinstellungen;Impostazioni del gioco inammissibili!
+remaining_flags;Remaining 🚩;Verbleibende 🚩;🚩 rimaste
+win;Win!;Gewonnen!;Vinto!
+lose;Lose!;Verloren!;Perso!
+micro;micro;mikro;micro
+mini;mini;mini;mini
+moderate;moderate;mäßig;moderato
+small;small;klein;piccolo
+medium;medium;mittel;mezzo
+large;large;groß;grande
+immense;immense;immens;immenso
+extreme;extreme;extrem;estremo
+size;Size;Größe;Grandezza
+bomb_density;Bomb density;Bombendichte;Densità delle bombe
+shape;Shape;Form;Forma
+play_time;Play time;Spielzeit;Durata
+close;Close;Schließen;Chiudere
+settings;Settings;Einstellungen;Impostazioni
+fields;Fields;Felder;Campi
+bombs;Bombs;Bomben;Bombe
+new_game;New game;Neues Spiel;Gioco nuovo
+low;low;niedrig;basso
+high;high;hoch;alto
+bosnia;Bosnia & Herzegovina;Bosnien & Herzegowina;Bosnia & Erzegovina
+berlin;Berlin '45;Berlin '45;Berlino '45
+game_idea;Game idea;Spielidee;Idea del gioco
+objective;Objective;Ziel;Obiettivo
+rule0;Uncover all fields that do not contain a bomb.;Decke alle Felder auf, unter denen keine Bombe platziert ist.;Scopri tutti i campi sotto i quali non è stata posizionata una bomba.
+rule1;Tapping or clicking reveals a field.;Durch Tippen oder Klicken wird ein Feld aufgedeckt.;Toccando o cliccando si scopre un campo.
+rule2;The number of a field indicates how many of the fields adjacent to it via edges or corners contain a bomb.;Die Nummer eines Feldes gibt an, unter wie vielen der durch Kanten oder Ecken angrenzenden Felder ein Bombe platziert ist.;Il numero di un campo indica sotto quanti campi adiacenti per lato o angolo è stata posizionata una bomba.
+rule3;By long-pressing or left-clicking, a field can be marked with a flag to indicate that it contains a bomb.;Durch langes Tippen oder linke Maustaste kann ein Feld mit einer Fahne markiert werden, um zu signalisieren, dass es eine Bombe enthält.</;Toccando a lungo o cliccando con il tasto sinistro è possibile contrassegnare un campo con una bandierina per segnalare che contiene una bomba.
+warning;Warning;Warnung;Avviso
+meta_description;Play Minesweeper online in various forms and difficulty levels;Spiele Minenschnüffler online in verschiedenen Formen und Schwierigkeitsstufen;Gioca a Dragamine online in diverse forme e livelli di difficoltà
+minesweeper;Minesweeper;Minenschnüffler;Dragamine

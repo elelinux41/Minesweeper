@@ -1,0 +1,196 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 30px;
+}
+.game-container {
+    display: flex;
+    margin: 0 auto;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    justify-content: center;
+}
+
+.game-container {
+  display: inline-block;
+  transform-origin: top left;
+  transition: transform 0.2s ease-out;
+}
+.triangle-container {
+    display: inline-block;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+    clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+    background-color: #999;
+    padding-bottom: 0px;
+    padding-top: 1.5px;
+    position: relative;
+}
+.hexagon-container {
+    display: inline-block;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    clip-path: polygon(
+        25% 0%,
+        75% 0%,
+        100% 50%,
+        75% 100%,
+        25% 100%,
+        0% 50%
+    );
+    background-color: #999;
+    padding-top: 1.5px;
+    padding-bottom: 10px;
+    padding-right: 6.5px;
+    padding-left: 6.5px;
+}
+.cell {
+    text-align: center;
+    line-height: 30px;
+    font-weight: bold;
+    background-color: #ddd;
+    vertical-align: top;
+    cursor: pointer;
+    /* Erzwingt, dass alle Events auf die Zelle wirken */
+    pointer-events: auto !important;
+    /* Verhindert das "Anheben" beim Klicken */
+    -webkit-tap-highlight-color: transparent;
+}
+.cell3 {
+    width: 45px;
+    height: 39px;
+    margin-left: -11.25px;
+    margin-right: -11.25px;
+    margin-bottom: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    display: inline-block;
+    position: relative;
+}
+.cell6 {
+    width: 32px;
+    height: 37px; /* Höhe = width * sqrt(3)/2 für perfekte Sechsecke */
+    background-color: #ddd;
+    /*margin: 0 1px; /* Geringer X-Abstand */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    clip-path: polygon(
+        0% 25%,
+        0% 75%,
+        50% 100%,
+        100% 75%,
+        100% 25%,
+        50% 0%
+    );
+    position: relative;
+}
+.cell3 a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cell6 a {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.cell4 {
+    width: 30px;
+    height: 30px;
+    border: 1px solid #999;
+    display: inline-block;
+    font-weight: bold;
+}
+.cell4 a {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    text-decoration: none !important;
+}
+.revealed {
+    background-color: #f0f0f0;
+}
+.bomb {
+    background-color: #ff0000;
+    color: white;
+}
+.flag {
+    background-color: #ddd;
+    color: red;
+    border: 0;
+}
+fieldset {
+    margin: 20px 0;
+    width: min(100%, 330px);
+    text-align: center;
+    margin: 20px auto;
+}
+footer {
+    margin: 20px 0;
+    width: min(100%, 330px);
+    text-align: right;
+    margin: 20px auto;
+}
+h1 {
+    color: #333;
+}
+.row3 {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    gap: 1px;
+}
+.row6 {
+    display: flex;
+    margin-bottom: -8.7px; /* Präziser Y-Versatz */
+    justify-content: center;
+    gap: 0.7px; 
+}
+.clip-up {
+clip-path: polygon(50% 1%, 0% 100%, 100% 100%);
+line-height: 50px;
+}
+
+.clip-down {
+clip-path: polygon(0 0, 100% 0, 50% 99%);
+}
+.cell3.flag a.cell {
+    /* Erzwingt Styles trotz Überschreibungen */
+    align-items: center !important;
+    justify-content: center !important;
+}
+a {
+    text-decoration: none !important;
+}
+.modal-window {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1001;
+    /*opacity: 1;*/
+    /*visibility: hidden;*/
+    transition: opacity 0.3s, visibility 0.3s;
+    max-width: 90%;
+    width: 500px;
+}
