@@ -12,11 +12,13 @@
  * @version 1.0
  * @license http://www.apache.org/licenses/LICENSE-2.0 Apache License 2.0
  */
+require_once 'romanise.php';
 class MineField {
     public readonly int $size;
     public readonly int $bombs;
     public readonly int $form;
     public readonly int $cells;
+    public readonly bool $roman;
     public readonly DateTime $starttime;
     public array $board; //values: 0 for empty, int for number, INF for bomb
     public array $flag; //values: TRUE for flag, FALSE for revealed, NULL for neither
@@ -36,7 +38,7 @@ class MineField {
      * @param float $bombs Ratio of bombs to total fields.
      * @param int $form Shape of the board (3: triangular, 4: quadratic, 6: hexagonal).
      */
-    public function __construct (int $fields, float $bombs, int $form)  {
+    public function __construct (int $fields, float $bombs, int $form, bool $roman = false)  {
         //proof params
         if (!isset($this::FORMNAMES[$form])) {
             throw new ValueError("Unknown form.");
@@ -58,6 +60,7 @@ class MineField {
             6 => 3 * $this->size * ($this->size - 1) + 1,
         };
         $this->bombs = round($bombs*$this->cells);
+        $this->roman = $roman;
         $this->starttime = new DateTime();
         //modifiable props
         $this->board = $this->gen_empty_field($this->form, FALSE);
@@ -140,7 +143,7 @@ class MineField {
                             } elseif ($this->board[$i][$j] == 0) {
                                 $content = '';
                             } else {
-                                $content = $this->board[$i][$j];
+                                $content = $this->roman ? romanise($this->board[$i][$j]) : $this->board[$i][$j];
                                 $color = $this::COLORS[$this->board[$i][$j]] ?? 'black';
                                 $style = "color: $color;";
                             }
@@ -170,7 +173,7 @@ class MineField {
                             } elseif ($this->board[$i][$j] == 0) {
                                 $content = '';
                             } else {
-                                $content = $this->board[$i][$j];
+                                $content = $this->roman ? romanise($this->board[$i][$j]) : $this->board[$i][$j];
                                 // Farben für Zahlen
                                 $color = $this::COLORS[$this->board[$i][$j]] ?? 'black';
                                 $style = "color: $color;";
@@ -202,7 +205,7 @@ class MineField {
                             } elseif ($this->board[$i][$j] == 0) {
                                 $content = '';
                             } else {
-                                $content = $this->board[$i][$j];
+                                $content = $this->roman ? romanise($this->board[$i][$j]) : $this->board[$i][$j];
                                 $color = $this::COLORS[$this->board[$i][$j]] ?? 'black';
                                 $style = "color: $color;";
                             }

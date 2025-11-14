@@ -4,13 +4,14 @@ A Minesweeper game with various board shapes (triangular, quadratic, hexagonal) 
 
 ## Requirements
 - Webserver
-- **PHP 8.4** or higher
+- **PHP 8.1** or higher
 
 ## Features
 - Multiple board shapes: Triangular, quadratic, and hexagonal grids
 - Adjustable board size
 - Adjustable bomb density
 - screen refresh via AJAX
+- Display board in arabic and roman numbers
 
 ## Rules
 **Objective:** Uncover all fields that do not contain a bomb.

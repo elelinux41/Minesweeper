@@ -35,6 +35,14 @@
                 }?>
             </td>
         </tr>
+        <tr>
+            <td>
+                <?php echo $trans["roman"];?>
+            </td>
+            <td>
+                <input type="checkbox" name="roman" <?php echo $_SESSION["field"]->roman ? "checked='checked'" : "";?>/>
+            </td>
+        </tr>
     </table>
     <input type="submit" name="new_game" value="<?php echo $trans["new_game"];?>"/>
     </form>

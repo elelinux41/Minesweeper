@@ -6,7 +6,8 @@ if (isset($_POST['new_game']) || isset($_GET["new_game"]) || !isset($_SESSION["f
     $_SESSION["field"] = new MineField(
         (int)($_POST["fields"] ?? 144),
         (float)($_POST["bombs"] ?? 0.12),
-        (int)($_POST["form"] ?? 4)
+        (int)($_POST["form"] ?? 4),
+        isset($_POST["roman"])
     );
 }
 
