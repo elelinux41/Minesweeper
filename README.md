@@ -24,4 +24,4 @@ A Minesweeper game with various board shapes (triangular, quadratic, hexagonal) 
 - Italian
 
 ## Preview
-!(Minesweeper triangulare board in the middle of a game)[/assets/example.png]
+![Minesweeper triangulare board in the middle of a game](/assets/example.png)
