@@ -122,105 +122,51 @@ class MineField {
     }
     /**
      * Displays the game board in html format.
-     * 
-     * @param array $trans Translation array for text elements
      */
-    public function display (array $trans) {
-        switch ($this->form) {
-            case 3:
-                echo '<div class="triangle-container" style="width: ' . ($this->size * 47.15) . 'px;">';
-                foreach ($this->board as $i => $row) {
-                    echo '<div class="row3">';
-                    foreach ($row as $j => $cell) {
+    public function __toString () {
+        global $trans;
+        $string = match ($this->form) {
+            3 => '<div class="form-container triangle-container" style="width: ' . ($this->size * 47.15) . 'px;">',
+            4 => '<div class="form-container square-container">',
+            6 => '<div class="form-container hexagon-container">',
+        } . "\n";        
+        foreach ($this->board as $i => $row) {
+            $string .= "<div class=\"row{$this->form}\">\n";
+            foreach ($row as $j => $cell) {
+                $class = 'cell cell' . $this->form;
+                switch ($this->form) {
+                    case 3:
                         // determine orientation of triangle
-                        $orientation = $i % 2 == abs($j) % 2 ? 'clip-up' : 'clip-down';
-                        if ($this->flag[$i][$j] === FALSE) {
-                            $class = $this->flag[$i][$j] == FALSE ? 'revealed' : ''; //NOTWENDIG?
-                            //determine content of each revealed cell
-                            if ($this->board[$i][$j] == INF) {
-                                $class .= ' bomb';
-                                $content = '💣';
-                            } elseif ($this->board[$i][$j] == 0) {
-                                $content = '';
-                            } else {
-                                $content = $this->roman ? romanise($this->board[$i][$j]) : $this->board[$i][$j];
-                                $color = $this::COLORS[$this->board[$i][$j]] ?? 'black';
-                                $style = "color: $color;";
-                            }
-                            echo '<div class="cell cell3 ' . $class .' '. $orientation . '" style="' . ($style ?? '') . '">' . $content . '</div>';
-                        } elseif ($this->flag[$i][$j] === TRUE) {
-                            echo '<div class="cell cell3 flag '.$orientation.'"><a href="?row=' . $i . '&col=' . $j . '" class="cell">🚩</a></div>';
-                        } else {
-                            echo '<div class="cell cell3 '.$orientation.'"><a href="?row=' . $i . '&col=' . $j . '" class="cell"></a></div>';
-                        }
-                    }
-                    echo '</div>';
+                        $class .= $i % 2 == abs($j) % 2 ? ' clip-up' : ' clip-down';
+                        break;
                 }
-                echo '</div>';
-                break;
-            case 4:
-                echo '<table cellspacing="0" cellpadding="0" style="margin: 0 auto;">';
-                for ($i = 0; $i < $this->size; $i++) {
-                    echo '<tr>';
-                    for ($j = 0; $j < $this->size; $j++) {
-                        echo '<td>';
-                        if ($this->flag[$i][$j] === FALSE) {
-                            $class = $this->flag[$i][$j] == FALSE ? 'revealed' : '';
-                            
-                            if ($this->board[$i][$j] == INF) {
-                                $class .= ' bomb';
-                                $content = '💣';
-                            } elseif ($this->board[$i][$j] == 0) {
-                                $content = '';
-                            } else {
-                                $content = $this->roman ? romanise($this->board[$i][$j]) : $this->board[$i][$j];
-                                // Farben für Zahlen
-                                $color = $this::COLORS[$this->board[$i][$j]] ?? 'black';
-                                $style = "color: $color;";
-                            }
-                            echo '<div class="cell cell4 ' . $class . '" style="' . ($style ?? '') . '">' . $content . '</div>';
-                        } elseif ($this->flag[$i][$j] === TRUE) {
-                            echo '<a href="?row=' . $i . '&col=' . $j . '" class="cell cell4"><div class="cell flag">🚩</div></a>';
-                        } else {
-                            echo '<a href="?row=' . $i . '&col=' . $j . '" class="cell cell4"></a>';
-                        }
-                        
-                        echo '</td>';
+                if ($this->flag[$i][$j] === FALSE) {
+                    $class .= ' revealed';
+                    if ($this->board[$i][$j] == INF) {
+                        $class .= ' bomb';
+                        $content = '💣';
+                    } elseif ($this->board[$i][$j] == 0) {
+                        $content = '';
+                    } else {
+                        $content = $this->roman ? romanise($this->board[$i][$j]) : $this->board[$i][$j];
+                        $spanclass = 'class="number' . $this->board[$i][$j] . '"'; 
                     }
-                    echo '</tr>';
+                } elseif ($this->flag[$i][$j] === TRUE) {
+                    $content = '🚩';
+                } else {
+                    $content = '';
                 }
-                echo '</table>';
-                break;
-            case 6:
-                echo '<div class="hexagon-container">';
-                foreach ($this->board as $i => $row) {
-                    echo '<div class="row6">';
-                    foreach ($row as $j => $cell) {
-                        if ($this->flag[$i][$j] === FALSE) {
-                            $class = $this->flag[$i][$j] == FALSE ? 'revealed' : '';
-                            
-                            if ($this->board[$i][$j] == INF) {
-                                $class .= ' bomb';
-                                $content = '💣';
-                            } elseif ($this->board[$i][$j] == 0) {
-                                $content = '';
-                            } else {
-                                $content = $this->roman ? romanise($this->board[$i][$j]) : $this->board[$i][$j];
-                                $color = $this::COLORS[$this->board[$i][$j]] ?? 'black';
-                                $style = "color: $color;";
-                            }
-                            echo '<div class="cell cell6 ' . $class .'" style="' . ($style ?? '') . '">' . $content . '</div>';
-                        } elseif ($this->flag[$i][$j] === TRUE) {
-                            echo '<div class="cell cell6 flag"><a href="?row=' . $i . '&col=' . $j . '" class="cell">🚩</a></div>';
-                        } else {
-                            echo '<div class="cell cell6"><a href="?row=' . $i . '&col=' . $j . '" class="cell"></a></div>';
-                        }
-                    }
-                    echo '</div>';
-                }
-                echo '</div>';
-                break;
+                $link = "href=\"?row={$i}&col={$j}\"";
+                $divclass = isset($class) ? ("class=\"$class\"") : '';
+                $spanclass = $spanclass ?? '';
+                $string .= $this->flag[$i][$j] === FALSE ?
+                    "<div $divclass><span $spanclass>$content</span></div>\n" :
+                    "<div $divclass><a $link class=\"cell\">$content</a></div>\n";
+                unset($spanclass);
+            }
+            $string .= "</div>\n";
         }
+        $string .= "</div>\n";
         // show remaining flags
         $flags = 0;
         foreach ($this->flag as $i) {
@@ -230,8 +176,10 @@ class MineField {
                 }
             }
         }
-        echo "<p>{$trans["remaining_flags"]}: ". $this->bombs - $flags;
+        $string .= "<p>{$trans["remaining_flags"]}: ". $this->bombs - $flags;
+        return $string;
     }
+
     /**
      * Displays the game outcome in html format if the game has ended.
      * 
@@ -360,6 +308,9 @@ class MineField {
     }
 
     private function check_outcome () {
+        if (isset($this->outcome)) {
+            return;
+        }
         $status = TRUE;
         foreach ($this->board as $i => $row0) {
             foreach ($row0 as $j => $cell) {

@@ -18,22 +18,26 @@ body {
   transform-origin: top left;
   transition: transform 0.2s ease-out;
 }
-.triangle-container {
+.form-container {
     display: inline-block;
     flex-direction: column;
     align-items: center;
+    position: relative;
+    background-color: #999;
+}
+.triangle-container {
     gap: 1px;
     clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
-    background-color: #999;
     padding-bottom: 0px;
     padding-top: 1.5px;
-    position: relative;
+}
+.square-container {
+    padding-top: 1px;
+    padding-bottom: 1px;
+    padding-left: 3px;
+    padding-right: 3px;
 }
 .hexagon-container {
-    display: inline-block;
-    flex-direction: column;
-    align-items: center;
-    position: relative;
     clip-path: polygon(
         25% 0%,
         75% 0%,
@@ -42,7 +46,6 @@ body {
         25% 100%,
         0% 50%
     );
-    background-color: #999;
     padding-top: 1.5px;
     padding-bottom: 10px;
     padding-right: 6.5px;
@@ -59,6 +62,9 @@ body {
     pointer-events: auto !important;
     /* Verhindert das "Anheben" beim Klicken */
     -webkit-tap-highlight-color: transparent;
+    position: relative;
+    align-items: center;
+    justify-content: center;
 }
 .cell3 {
     width: 45px;
@@ -66,20 +72,21 @@ body {
     margin-left: -11.25px;
     margin-right: -11.25px;
     margin-bottom: 1px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     display: inline-block;
-    position: relative;
+}
+.cell4 {
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    margin-left: -1.5px;
+    margin-right: -1.5px;
+    margin-top: .5px;
+    margin-bottom: .5px;
 }
 .cell6 {
     width: 32px;
     height: 37px; /* Höhe = width * sqrt(3)/2 für perfekte Sechsecke */
-    background-color: #ddd;
-    /*margin: 0 1px; /* Geringer X-Abstand */
     display: flex;
-    justify-content: center;
-    align-items: center;
     clip-path: polygon(
         0% 25%,
         0% 75%,
@@ -88,9 +95,8 @@ body {
         100% 25%,
         50% 0%
     );
-    position: relative;
 }
-.cell3 a {
+.cell a {
     position: absolute;
     top: 0;
     left: 0;
@@ -99,29 +105,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-}
-.cell6 a {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.cell4 {
-    width: 30px;
-    height: 30px;
-    border: 1px solid #999;
-    display: inline-block;
-    font-weight: bold;
-}
-.cell4 a {
-    display: block !important;
-    width: 100% !important;
-    height: 100% !important;
-    text-decoration: none !important;
 }
 .revealed {
     background-color: #f0f0f0;
@@ -188,9 +171,57 @@ a {
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     z-index: 1001;
-    /*opacity: 1;*/
-    /*visibility: hidden;*/
-    transition: opacity 0.3s, visibility 0.3s;
     max-width: 90%;
     width: 500px;
+}
+.number1 {
+    color: blue;
+}
+.number2 {
+    color: green;
+}
+.number3 {
+    color: red;
+}
+.number4 {
+    color: darkblue;
+}
+.number5 {
+    color: brown;
+}
+.number6 {
+    color: cyan;
+}
+.number7 {
+    color: black;
+}
+.number8 {
+    color: gray;
+}
+.number9 {
+    animation-name: animation9;
+    animation-timing-function: ease-in;
+    animation-duration: 2s; 
+    animation-iteration-count: infinite;            
+}
+@keyframes animation9 {
+    0% { opacity: 1; }
+    50% { opacity: 0.1; }
+    100% { opacity: 1; }    
+}
+.number10 {
+    animation-name: animation10;
+    animation-timing-function: ease-in;
+    animation-duration: 7s; 
+    animation-iteration-count: infinite; 
+}
+@keyframes animation10 {
+    0% { color: red; }
+    14% { color: orange; }
+    28% { color: #c89f04; }
+    42% { color: green; }
+    56% { color: cornflowerblue; }
+    70% { color: blue; }
+    84% { color: purple; }
+    100% { color: red; }
 }

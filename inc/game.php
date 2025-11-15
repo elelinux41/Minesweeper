@@ -26,7 +26,7 @@ if (isset($_GET['row']) && isset($_GET['col'])) {
 }
 
 // show game
-$_SESSION["field"]->display($trans);
+echo $_SESSION["field"];
 if (isset($_SESSION["field"]->outcome) && !isset($_POST['close_outcome'])) {
     $_SESSION["field"]->print_outcome($trans);
 }
