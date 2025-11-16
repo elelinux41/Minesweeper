@@ -24,7 +24,7 @@
             </td>
             <td>
                 <?php
-                foreach (MineField::FORMNAMES as $i => $name) {
+                foreach (MineField::$FORMNAMES as $i => $name) {
                     echo '<label><input type="radio" name="form" value="'
                     . (string)$i
                     . '" '

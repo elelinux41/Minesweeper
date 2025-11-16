@@ -4,7 +4,7 @@ A Minesweeper game with various board shapes (triangular, quadratic, cairo-tilin
 
 ## Requirements
 - Webserver
-- **PHP 8.1** or higher
+- **PHP 5.6** or higher
 
 ## Features
 - Multiple board shapes: Triangular, quadratic, cairo and hexagonal grids

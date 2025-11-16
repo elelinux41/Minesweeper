@@ -14,59 +14,66 @@
  */
 require_once 'romanise.php';
 class MineField {
-    public readonly int $size;
-    public readonly int $bombs;
-    public readonly int $form;
-    public readonly int $cells;
-    public readonly bool $roman;
-    public readonly DateTime $starttime;
-    public array $board; //values: 0 for empty, int for number, INF for bomb
-    public array $flag; //values: TRUE for flag, FALSE for revealed, NULL for neither
-    public ?bool $outcome;
-    public ?DateTime $endtime;
-    private bool $bombs_placed;
-    public const FORMNAMES = [
+    public $size;
+    public $bombs;
+    public $form;
+    public $cells;
+    public $roman;
+    public $starttime;
+    public $board; //values: 0 for empty, int for number, INF for bomb
+    public $flag; //values: TRUE for flag, FALSE for revealed, NULL for neither
+    public $outcome;
+    public $endtime;
+    private $bombs_placed;
+    public static $FORMNAMES = [
         3 => 'triangular',
         4 => 'quadratic',
         5 => 'egyptian',
         6 => 'hexagonal',
     ];    
+    
     /**
      * @param int $fields Aproximate number of fields on the board.
      * @param float $bombs Ratio of bombs to total fields.
      * @param int $form Shape of the board (3: triangular, 4: quadratic, 6: hexagonal).
      */
-    public function __construct (int $fields, float $bombs, int $form, bool $roman = false)  {
+    public function __construct($fields, $bombs, $form, $roman = false) {
         //proof params
-        if (!isset($this::FORMNAMES[$form])) {
-            throw new ValueError("Unknown form.");
+        if (!isset(self::$FORMNAMES[$form])) {
+            throw new Exception("Unknown form.");
         }
         if ($bombs <= 0 || $bombs >= 1) {
-            throw new ValueError("Ratio of bombs must be ∈ ]0;1[.");
+            throw new Exception("Ratio of bombs must be ∈ ]0;1[.");
         }
         if ($fields <= 0) {
-            throw new ValueError("Number of fields must be ∈ ℕ^+");
+            throw new Exception("Number of fields must be ∈ ℕ^+");
         }
         //readonly props
         $this->form = $form;
-        $this->size = round(match ($this->form) {
-            3, 4, 5 => $fields**.5,
-            6 => .5 + (.25 + ($fields - 1) /3)**.5
-        });
-        $this->cells = match ($this->form) {
-            3, 4, 5 => $this->size ** 2,
-            6 => 3 * $this->size * ($this->size - 1) + 1,
-        };
-        $this->bombs = round($bombs*$this->cells);
+        
+        if ($this->form == 3 || $this->form == 4 || $this->form == 5) {
+            $this->size = round(pow($fields, 0.5));
+        } else {
+            $this->size = round(0.5 + pow(0.25 + ($fields - 1) / 3, 0.5));
+        }
+        
+        if ($this->form == 3 || $this->form == 4 || $this->form == 5) {
+            $this->cells = pow($this->size, 2);
+        } else {
+            $this->cells = 3 * $this->size * ($this->size - 1) + 1;
+        }
+        
+        $this->bombs = round($bombs * $this->cells);
         $this->roman = $roman;
         $this->starttime = new DateTime();
         //modifiable props
-        $this->board = $this->gen_empty_field($this->form, FALSE);
-        $this->flag = $this->gen_empty_field($this->form, NULL);
-        $this->bombs_placed = FALSE;
-        $this->outcome = NULL;
-        $this->endtime = NULL;
+        $this->board = $this->gen_empty_field($this->form, false);
+        $this->flag = $this->gen_empty_field($this->form, null);
+        $this->bombs_placed = false;
+        $this->outcome = null;
+        $this->endtime = null;
     }
+    
     /**
      * Reveals a cell at the specified row and column.
      * 
@@ -77,33 +84,34 @@ class MineField {
      * @param int $col
      * @return bool FALSE if bombs could not be placed because board is too small, TRUE otherwise
      */
-    public function reveal (int $row, int $col) : bool {
+    public function reveal($row, $col) {
         if (!isset($this->board[$row][$col])) {
-            return FALSE;
+            return false;
         }
         //check if field is already revealed or flagged
         if (isset($this->flag[$row][$col]) || isset($this->outcome)) {
-            return TRUE;
+            return true;
         }
         //check if bombs are placed
         if (!$this->bombs_placed) {
-            if (!$this->place_bombs($row,$col)) {
-                return FALSE;
+            if (!$this->place_bombs($row, $col)) {
+                return false;
             }
         }
         //set value
-        $this->flag[$row][$col] = FALSE;
+        $this->flag[$row][$col] = false;
         //reveal neighbors of field if empty
         if ($this->board[$row][$col] == 0) {
-            foreach ($this->near_fields($row, $col, FALSE) as $field) {
-                if (!$this->flag[$field[0]][$field[1]]) {
+            foreach ($this->near_fields($row, $col, false) as $field) {
+                if (!isset($this->flag[$field[0]][$field[1]]) || !$this->flag[$field[0]][$field[1]]) {
                     $this->reveal($field[0], $field[1]);
                 }
             }
         }
         $this->check_outcome();
-        return TRUE;
+        return true;
     }
+    
     /**
      * Sets or removes a flag at the specified row and column.
      * 
@@ -112,26 +120,31 @@ class MineField {
      * @param int $row
      * @param int $col
      */
-    public function flag (int $row, int $col) {
+    public function flag($row, $col) {
         if (!isset($this->outcome)) {
-            $this->flag[$row][$col] = match ($this->flag[$row][$col]) {
-                NULL => TRUE,
-                TRUE => NULL,
-                FALSE => FALSE
-            };
+            if ($this->flag[$row][$col] === null) {
+                $this->flag[$row][$col] = true;
+            } elseif ($this->flag[$row][$col] === true) {
+                $this->flag[$row][$col] = null;
+            }
         }
     }
+    
     /**
      * Displays the game board in html format.
      */
-    public function __toString () {
+    public function __toString() {
         global $trans;
-        $string = match ($this->form) {
-            3 => '<div class="form-container triangle-container" style="width: ' . ($this->size * 47.15) . 'px;">',
-            4 => '<div class="form-container square-container">',
-            5 => '<div class="form-container cairo-container">',
-            6 => '<div class="form-container hexagon-container">',
-        } . "\n";        
+        if ($this->form == 3) {
+            $string = '<div class="form-container triangle-container" style="width: ' . ($this->size * 47.15) . 'px;">' . "\n";
+        } elseif ($this->form == 4) {
+            $string = '<div class="form-container square-container">' . "\n";
+        } elseif ($this->form == 5) {
+            $string = '<div class="form-container cairo-container">' . "\n";
+        } else {
+            $string = '<div class="form-container hexagon-container">' . "\n";
+        }
+        
         foreach ($this->board as $i => $row) {
             $string .= "<div class=\"row row{$this->form}\">\n";
             foreach ($row as $j => $cell) {
@@ -143,17 +156,20 @@ class MineField {
                         break;
                     case 5:
                         // determine orientation of pentagon
-                        $class .= match (true) {
-                            $i % 2 == 0 && $j % 2 == 0 => ' quadrant2',
-                            $i % 2 == 0 && $j % 2 != 0 => ' quadrant3',
-                            $i % 2 != 0 && $j % 2 == 0 => ' quadrant1',
-                            $i % 2 != 0 && $j % 2 != 0 => ' quadrant4',
-                        };
+                        if ($i % 2 == 0 && $j % 2 == 0) {
+                            $class .= ' quadrant2';
+                        } elseif ($i % 2 == 0 && $j % 2 != 0) {
+                            $class .= ' quadrant3';
+                        } elseif ($i % 2 != 0 && $j % 2 == 0) {
+                            $class .= ' quadrant1';
+                        } else {
+                            $class .= ' quadrant4';
+                        }
                         break;
                 }
-                if ($this->flag[$i][$j] === FALSE) {
+                if ($this->flag[$i][$j] === false) {
                     $class .= ' revealed';
-                    if ($this->board[$i][$j] == INF) {
+                    if (is_infinite($this->board[$i][$j])) {
                         $class .= ' bomb';
                         $content = '💣';
                     } elseif ($this->board[$i][$j] == 0) {
@@ -162,7 +178,7 @@ class MineField {
                         $content = $this->roman ? romanise($this->board[$i][$j]) : $this->board[$i][$j];
                         $class .= " number" . $this->board[$i][$j]; 
                     }
-                } elseif ($this->flag[$i][$j] === TRUE) {
+                } elseif ($this->flag[$i][$j] === true) {
                     $class .= ' flagged';
                     $content = '🚩';
                 } else {
@@ -170,7 +186,7 @@ class MineField {
                 }
                 $link = "href=\"?row={$i}&col={$j}\"";
                 $divclass = isset($class) ? ("class=\"$class\"") : '';
-                $string .= $this->flag[$i][$j] === FALSE ?
+                $string .= $this->flag[$i][$j] === false ?
                     "<div $divclass><span>$content</span></div>\n" :
                     "<div $divclass><a $link class=\"cell\"><span>$content</span></a></div>\n";
             }
@@ -181,12 +197,12 @@ class MineField {
         $flags = 0;
         foreach ($this->flag as $i) {
             foreach ($i as $j) {
-                if ($j === TRUE) {
+                if ($j === true) {
                     $flags++;
                 }
             }
         }
-        $string .= "<p>{$trans["remaining_flags"]}: ". $this->bombs - $flags;
+        $string .= "<p>{$trans["remaining_flags"]}: ". ($this->bombs - $flags) . "</p>";
         return $string;
     }
 
@@ -195,7 +211,7 @@ class MineField {
      * 
      * @param array $trans Translation array for text elements
      */
-    public function print_outcome () {
+    public function print_outcome() {
         global $trans;
         if (!isset($this->outcome)) {
             return;
@@ -207,31 +223,46 @@ class MineField {
             echo "<h2 style=\"color: red;\">{$trans["lose"]} 💣</h2>";
             echo '<audio autoplay><source src="assets/explosion.mp3" type="audio/mpeg"></audio>';
         }
-        echo "<p>{$trans["size"]}: ". $trans[match (true) {
-            $this->cells <= 19 => 'micro',
-            $this->cells <= 25 => 'mini',
-            $this->cells <= 36 => 'small',
-            $this->cells <= 64 => 'moderate',
-            $this->cells <= 100 => 'medium',
-            $this->cells <= 144 => 'large',
-            $this->cells <= 225 => 'immense',
-            $this->cells > 225 => 'extreme'
-        }].'</p>';
-        $bombs = $this->bombs/$this->cells;
-        echo "<p>{$trans["bomb_density"]}: ". $trans[match (true) {
-            $bombs < 0.1 => 'low',
-            $bombs < 0.2 => 'medium',
-            $bombs < 0.3 => 'high',
-            $bombs < 0.4 => 'bosnia',
-            $bombs >= 0.4 => 'berlin'
-        }].'</p>';
-        echo "<p>{$trans["shape"]}: ". $trans[$this::FORMNAMES[$this->form]].'</p>';
+        
+        if ($this->cells <= 19) {
+            $size_key = 'micro';
+        } elseif ($this->cells <= 25) {
+            $size_key = 'mini';
+        } elseif ($this->cells <= 36) {
+            $size_key = 'small';
+        } elseif ($this->cells <= 64) {
+            $size_key = 'moderate';
+        } elseif ($this->cells <= 100) {
+            $size_key = 'medium';
+        } elseif ($this->cells <= 144) {
+            $size_key = 'large';
+        } elseif ($this->cells <= 225) {
+            $size_key = 'immense';
+        } else {
+            $size_key = 'extreme';
+        }
+        echo "<p>{$trans["size"]}: ". $trans[$size_key].'</p>';
+        
+        $bombs = $this->bombs / $this->cells;
+        if ($bombs < 0.1) {
+            $bomb_key = 'low';
+        } elseif ($bombs < 0.2) {
+            $bomb_key = 'medium';
+        } elseif ($bombs < 0.3) {
+            $bomb_key = 'high';
+        } elseif ($bombs < 0.4) {
+            $bomb_key = 'bosnia';
+        } else {
+            $bomb_key = 'berlin';
+        }
+        echo "<p>{$trans["bomb_density"]}: ". $trans[$bomb_key].'</p>';
+        echo "<p>{$trans["shape"]}: ". $trans[self::$FORMNAMES[$this->form]].'</p>';
         echo "<p>{$trans["play_time"]}: ". date_diff($this->endtime, $this->starttime)->format('%H:%I:%S') .'</p>';
         echo "<form method=\"post\"><button type=\"submit\" name=\"close_outcome\">{$trans["close"]}</button></form>";
         echo '</center></div>';
     }
 
-    public static function print_warning () {
+    public static function print_warning() {
         global $trans;
         echo "<div class=\"modal-window\"><center>
         <h3>⚠️ {$trans["warning"]}</h3>
@@ -240,10 +271,10 @@ class MineField {
         </center></div>";
     }
 
-    private function place_bombs (int $row, int $col) : bool {
+    private function place_bombs($row, $col) {
         //determine possible fields for bombs
         $cells = [];
-        $near_fields = $this->near_fields($row,$col,TRUE);
+        $near_fields = $this->near_fields($row, $col, true);
         foreach ($this->board as $i => $row0) {
             foreach ($row0 as $j => $cell) {
                 if (!in_array([$i, $j], $near_fields)) {
@@ -254,72 +285,84 @@ class MineField {
         }
         //is there place for all bombs
         if (count($cells) <= $this->bombs) {
-            return FALSE;
+            return false;
         }
         //place bombs on random fields
-        foreach (array_rand($cells, $this->bombs) as $key) {
+        $rand_keys = array_rand($cells, $this->bombs);
+        foreach ($rand_keys as $key) {
             $this->board[$cells[$key][0]][$cells[$key][1]] = INF;
         }
         //calculate number of every field
         foreach ($this->board as $i => $row) {
             foreach ($row as $j => $cell) {
-                if ($this->board[$i][$j] != INF) {
+                if (!is_infinite($this->board[$i][$j])) {
                     $this->board[$i][$j] = $this->calc_number($i, $j);
                 }
             }
         }
-        $this->bombs_placed = TRUE;
-        return TRUE;
+        $this->bombs_placed = true;
+        return true;
     }
 
-    private function near_fields (int $row, int $col, bool $self) : array {
+    private function near_fields($row, $col, $self) {
         //determine surrounding fields
-        $fields = match ($this->form) {
-            3 => $row % 2 == abs($col) % 2 ? [ //clip-up
+        if ($this->form == 3) {
+            if ($row % 2 == abs($col) % 2) { //clip-up
+                $fields = [
                     [$row-1, $col-1], [$row-1, $col], [$row-1, $col+1],
                     [$row, $col-2], [$row, $col-1], [$row, $col+1], [$row, $col+2],
                     [$row+1, $col-2], [$row+1, $col-1], [$row+1, $col], [$row+1, $col+1], [$row+1, $col+2],
-                ] : [ //clip-down
+                ];
+            } else { //clip-down
+                $fields = [
                     [$row-1, $col-2], [$row-1, $col-1], [$row-1, $col], [$row-1, $col+1], [$row-1, $col+2],
                     [$row, $col-2], [$row, $col-1], [$row, $col+1], [$row, $col+2],
                     [$row+1, $col-1], [$row+1, $col], [$row+1, $col+1],
-                ],
-            4 => [
+                ];
+            }
+        } elseif ($this->form == 4) {
+            $fields = [
                 [$row-1, $col-1], [$row-1, $col], [$row-1, $col+1],
                 [$row, $col-1], [$row, $col+1],
                 [$row+1, $col-1], [$row+1, $col], [$row+1, $col+1]
-            ],
-            5 => match (true) {
-                $row % 2 == 0 && $col % 2 == 0 => [ //quadrant2
+            ];
+        } elseif ($this->form == 5) {
+            if ($row % 2 == 0 && $col % 2 == 0) { //quadrant2
+                $fields = [
                     [$row-1, $col-1], [$row-1, $col], [$row-1, $col+1],
                     [$row, $col-1], [$row, $col+1],
                     [$row+1, $col-1], [$row+1, $col]
-                ],
-                $row % 2 == 0 && $col % 2 != 0 => [ //quadrant3
+                ];
+            } elseif ($row % 2 == 0 && $col % 2 != 0) { //quadrant3
+                $fields = [
                     [$row-1, $col-1], [$row-1, $col],
                     [$row, $col-1], [$row, $col+1],
                     [$row+1, $col-1], [$row+1, $col], [$row+1, $col+1]
-                ],
-                $row % 2 != 0 && $col % 2 == 0 => [ //quadrant1
+                ];
+            } elseif ($row % 2 != 0 && $col % 2 == 0) { //quadrant1
+                $fields = [
                     [$row-1, $col-1], [$row-1, $col], [$row-1, $col+1],
                     [$row, $col-1], [$row, $col+1],
                     [$row+1, $col], [$row+1, $col+1]
-                ],
-                $row % 2 != 0 && $col % 2 != 0 => [ //quadrant4
+                ];
+            } else { //quadrant4
+                $fields = [
                     [$row-1, $col], [$row-1, $col+1],
                     [$row, $col-1], [$row, $col+1],
                     [$row+1, $col-1], [$row+1, $col], [$row+1, $col+1]
-                ],
-            },
-            6 => [
+                ];
+            }
+        } else { // form == 6
+            $fields = [
                 [$row-1, $col-1], [$row-1, $col+1],
                 [$row, $col-2], [$row, $col+2],
                 [$row+1, $col-1], [$row+1, $col+1]
-            ]
-        };
+            ];
+        }
+        
         //add requested field if wanted
         if ($self) {
-            $fields[] = [$row,$col];
+            $fields[] = [$row, $col];
         }
         //proof if fields are on the board
         foreach ($fields as $key => $field) {
@@ -331,9 +374,9 @@ class MineField {
         return $fields;
     }
 
-    private function calc_number ($row, $col) : int {
+    private function calc_number($row, $col) {
         $count = 0;
-        foreach ($this->near_fields($row, $col, FALSE) as $field) {
+        foreach ($this->near_fields($row, $col, false) as $field) {
             if (isset($this->board[$field[0]][$field[1]]) && is_infinite($this->board[$field[0]][$field[1]])) {
                 $count++;
             }
@@ -341,16 +384,16 @@ class MineField {
         return $count;
     }
 
-    private function check_outcome () {
+    private function check_outcome() {
         if (isset($this->outcome)) {
             return;
         }
-        $status = TRUE;
+        $status = true;
         foreach ($this->board as $i => $row0) {
             foreach ($row0 as $j => $cell) {
                 //check unrevealed notbomb
-                if ($this->board[$i][$j] !== INF && $this->flag[$i][$j] !== FALSE) {
-                    $status = NULL;
+                if (!is_infinite($this->board[$i][$j]) && $this->flag[$i][$j] !== false) {
+                    $status = null;
                     break 2;
                 }
             }
@@ -358,8 +401,8 @@ class MineField {
         foreach ($this->board as $i => $row0) {
             foreach ($row0 as $j => $cell) {
                 //check revealed bomb
-                if ($this->board[$i][$j] == INF && $this->flag[$i][$j] === FALSE) {
-                    $status = FALSE;
+                if (is_infinite($this->board[$i][$j]) && $this->flag[$i][$j] === false) {
+                    $status = false;
                     break 2;
                 }
             }
@@ -371,24 +414,42 @@ class MineField {
         }
     }
 
-    private function reveal_all_bombs () {
+    private function reveal_all_bombs() {
         foreach ($this->board as $i => $row0) {
             foreach ($row0 as $j => $cell) {
-                if ($cell == INF) {
-                    $this->flag[$i][$j] = FALSE;
+                if (is_infinite($cell)) {
+                    $this->flag[$i][$j] = false;
                 }
             }
         }
     }
 
-    private function gen_empty_field ($form, $filling) {
-        return match ($form) {
-            3 => array_map(fn($i) => array_fill(-$i, 1+2*$i, $filling), range(0, $this->size -1)),
-            4, 5 => array_fill(0, $this->size, array_fill(0, $this->size, $filling)),
-            6 => array_map(fn($i) =>
-                    array_map(fn($j) => $filling, array_combine(range(2+abs($i)-$this->size*2, $this->size*2-2-abs($i), 2), range(2+abs($i)-$this->size*2, $this->size*2-2-abs($i), 2))),
-                array_combine(range(1-$this->size, $this->size-1), range(1-$this->size,$this->size-1))),
-        };
+    private function gen_empty_field($form, $filling) {
+        if ($form == 3) {
+            $result = [];
+            for ($i = 0; $i < $this->size; $i++) {
+                $row = array_fill(0, 1+2*$i, $filling);
+                $result[$i] = [];
+                foreach ($row as $key => $j) {
+                    $result[$i][$key - $i] = $j;
+                }
+            }
+            return $result;
+        } elseif ($form == 4 || $form == 5) {
+            return array_fill(0, $this->size, array_fill(0, $this->size, $filling));
+        } else { // form == 6
+            $result = [];
+            for ($i = 1 - $this->size; $i < $this->size; $i++) {
+                $start = 2 + abs($i) - $this->size * 2;
+                $end = $this->size * 2 - 2 - abs($i);
+                $row = [];
+                for ($j = $start; $j <= $end; $j += 2) {
+                    $row[$j] = $filling;
+                }
+                $result[$i] = $row;
+            }
+            return $result;
+        }
     }
 }
 ?>

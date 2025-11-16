@@ -7,15 +7,17 @@
  * 
  * @return array array of translations [string $key => string $translation_of_requested_language]
  */
-function load_translation(string $filePath, string $language) {
+function load_translation($filePath, $language) {
     $translations = [];
     $lang = substr($language, 0, 2);
     if (($handle = fopen($filePath, 'r')) !== false) {
-        $headers = fgetcsv($handle, separator: ';', escape: '');
-        $lang = in_array($lang, $headers) ? $lang : "en";
+        $headers = fgetcsv($handle, null, ';');
+        if (!in_array($lang, $headers)) {
+            $lang = 'en';
+        }
         $languageIndex = array_search($lang, $headers);
         if ($languageIndex !== false) {
-            while (($row = fgetcsv($handle, separator: ';', escape: '')) !== false) {
+            while (($row = fgetcsv($handle, null, ';')) !== false) {
                 $key = $row[0];
                 $translations[$key] = $row[$languageIndex];
             }

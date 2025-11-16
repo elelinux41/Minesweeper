@@ -3,10 +3,19 @@
 // start new game
 if (isset($_POST['new_game']) || isset($_GET["new_game"]) || !isset($_SESSION["field"])) {
     session_unset();
+    if (!isset($_POST["fields"])) {
+        $_POST["fields"] = 144;
+    }
+    if (!isset($_POST["bombs"])) {
+        $_POST["bombs"] = 0.12;
+    }
+    if (!isset($_POST["form"])) {
+        $_POST["form"] = 4;
+    }
     $_SESSION["field"] = new MineField(
-        (int)($_POST["fields"] ?? 144),
-        (float)($_POST["bombs"] ?? 0.12),
-        (int)($_POST["form"] ?? 4),
+        (int)$_POST["fields"],
+        (float)$_POST["bombs"],
+        (int)$_POST["form"],
         isset($_POST["roman"])
     );
 }
