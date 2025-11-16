@@ -28,11 +28,9 @@ class MineField {
     public const FORMNAMES = [
         3 => 'triangular',
         4 => 'quadratic',
-        # 5 => 'egyptian', //comming soon
+        5 => 'egyptian',
         6 => 'hexagonal',
-    ];
-    private const COLORS = ['', 'blue', 'green', 'red', 'darkblue', 'brown', 'teal', 'black', 'gray'];
-    
+    ];    
     /**
      * @param int $fields Aproximate number of fields on the board.
      * @param float $bombs Ratio of bombs to total fields.
@@ -52,11 +50,11 @@ class MineField {
         //readonly props
         $this->form = $form;
         $this->size = round(match ($this->form) {
-            3, 4 => $fields**.5,
+            3, 4, 5 => $fields**.5,
             6 => .5 + (.25 + ($fields - 1) /3)**.5
         });
         $this->cells = match ($this->form) {
-            3, 4 => $this->size ** 2,
+            3, 4, 5 => $this->size ** 2,
             6 => 3 * $this->size * ($this->size - 1) + 1,
         };
         $this->bombs = round($bombs*$this->cells);
@@ -80,6 +78,9 @@ class MineField {
      * @return bool FALSE if bombs could not be placed because board is too small, TRUE otherwise
      */
     public function reveal (int $row, int $col) : bool {
+        if (!isset($this->board[$row][$col])) {
+            return FALSE;
+        }
         //check if field is already revealed or flagged
         if (isset($this->flag[$row][$col]) || isset($this->outcome)) {
             return TRUE;
@@ -128,16 +129,26 @@ class MineField {
         $string = match ($this->form) {
             3 => '<div class="form-container triangle-container" style="width: ' . ($this->size * 47.15) . 'px;">',
             4 => '<div class="form-container square-container">',
+            5 => '<div class="form-container cairo-container">',
             6 => '<div class="form-container hexagon-container">',
         } . "\n";        
         foreach ($this->board as $i => $row) {
-            $string .= "<div class=\"row{$this->form}\">\n";
+            $string .= "<div class=\"row row{$this->form}\">\n";
             foreach ($row as $j => $cell) {
                 $class = 'cell cell' . $this->form;
                 switch ($this->form) {
                     case 3:
                         // determine orientation of triangle
                         $class .= $i % 2 == abs($j) % 2 ? ' clip-up' : ' clip-down';
+                        break;
+                    case 5:
+                        // determine orientation of pentagon
+                        $class .= match (true) {
+                            $i % 2 == 0 && $j % 2 == 0 => ' quadrant2',
+                            $i % 2 == 0 && $j % 2 != 0 => ' quadrant3',
+                            $i % 2 != 0 && $j % 2 == 0 => ' quadrant1',
+                            $i % 2 != 0 && $j % 2 != 0 => ' quadrant4',
+                        };
                         break;
                 }
                 if ($this->flag[$i][$j] === FALSE) {
@@ -149,20 +160,19 @@ class MineField {
                         $content = '';
                     } else {
                         $content = $this->roman ? romanise($this->board[$i][$j]) : $this->board[$i][$j];
-                        $spanclass = 'class="number' . $this->board[$i][$j] . '"'; 
+                        $class .= " number" . $this->board[$i][$j]; 
                     }
                 } elseif ($this->flag[$i][$j] === TRUE) {
+                    $class .= ' flagged';
                     $content = '🚩';
                 } else {
                     $content = '';
                 }
                 $link = "href=\"?row={$i}&col={$j}\"";
                 $divclass = isset($class) ? ("class=\"$class\"") : '';
-                $spanclass = $spanclass ?? '';
                 $string .= $this->flag[$i][$j] === FALSE ?
-                    "<div $divclass><span $spanclass>$content</span></div>\n" :
-                    "<div $divclass><a $link class=\"cell\">$content</a></div>\n";
-                unset($spanclass);
+                    "<div $divclass><span>$content</span></div>\n" :
+                    "<div $divclass><a $link class=\"cell\"><span>$content</span></a></div>\n";
             }
             $string .= "</div>\n";
         }
@@ -185,7 +195,8 @@ class MineField {
      * 
      * @param array $trans Translation array for text elements
      */
-    public function print_outcome (array $trans) {
+    public function print_outcome () {
+        global $trans;
         if (!isset($this->outcome)) {
             return;
         } elseif ($this->outcome) {
@@ -220,7 +231,8 @@ class MineField {
         echo '</center></div>';
     }
 
-    public static function print_warning (array $trans) {
+    public static function print_warning () {
+        global $trans;
         echo "<div class=\"modal-window\"><center>
         <h3>⚠️ {$trans["warning"]}</h3>
         <p>{$trans["inadmissible"]}</p>
@@ -277,6 +289,28 @@ class MineField {
                 [$row, $col-1], [$row, $col+1],
                 [$row+1, $col-1], [$row+1, $col], [$row+1, $col+1]
             ],
+            5 => match (true) {
+                $row % 2 == 0 && $col % 2 == 0 => [ //quadrant2
+                    [$row-1, $col-1], [$row-1, $col], [$row-1, $col+1],
+                    [$row, $col-1], [$row, $col+1],
+                    [$row+1, $col-1], [$row+1, $col]
+                ],
+                $row % 2 == 0 && $col % 2 != 0 => [ //quadrant3
+                    [$row-1, $col-1], [$row-1, $col],
+                    [$row, $col-1], [$row, $col+1],
+                    [$row+1, $col-1], [$row+1, $col], [$row+1, $col+1]
+                ],
+                $row % 2 != 0 && $col % 2 == 0 => [ //quadrant1
+                    [$row-1, $col-1], [$row-1, $col], [$row-1, $col+1],
+                    [$row, $col-1], [$row, $col+1],
+                    [$row+1, $col], [$row+1, $col+1]
+                ],
+                $row % 2 != 0 && $col % 2 != 0 => [ //quadrant4
+                    [$row-1, $col], [$row-1, $col+1],
+                    [$row, $col-1], [$row, $col+1],
+                    [$row+1, $col-1], [$row+1, $col], [$row+1, $col+1]
+                ],
+            },
             6 => [
                 [$row-1, $col-1], [$row-1, $col+1],
                 [$row, $col-2], [$row, $col+2],
@@ -350,7 +384,7 @@ class MineField {
     private function gen_empty_field ($form, $filling) {
         return match ($form) {
             3 => array_map(fn($i) => array_fill(-$i, 1+2*$i, $filling), range(0, $this->size -1)),
-            4 => array_fill(0, $this->size, array_fill(0, $this->size, $filling)),
+            4, 5 => array_fill(0, $this->size, array_fill(0, $this->size, $filling)),
             6 => array_map(fn($i) =>
                     array_map(fn($j) => $filling, array_combine(range(2+abs($i)-$this->size*2, $this->size*2-2-abs($i), 2), range(2+abs($i)-$this->size*2, $this->size*2-2-abs($i), 2))),
                 array_combine(range(1-$this->size, $this->size-1), range(1-$this->size,$this->size-1))),

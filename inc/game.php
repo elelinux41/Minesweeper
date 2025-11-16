@@ -20,7 +20,7 @@ if (isset($_GET['row']) && isset($_GET['col'])) {
         $_SESSION["field"]->flag($row, $col);
     } else {
         if (!$_SESSION["field"]->reveal($row, $col) && !isset($_POST["close_warning"])) {
-            $_SESSION["field"]::print_warning($trans);
+            $_SESSION["field"]::print_warning();
         }
     }
 }
@@ -28,7 +28,7 @@ if (isset($_GET['row']) && isset($_GET['col'])) {
 // show game
 echo $_SESSION["field"];
 if (isset($_SESSION["field"]->outcome) && !isset($_POST['close_outcome'])) {
-    $_SESSION["field"]->print_outcome($trans);
+    $_SESSION["field"]->print_outcome();
 }
 ?>
 </div>

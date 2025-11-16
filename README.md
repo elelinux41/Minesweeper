@@ -1,13 +1,13 @@
 # Minesweeper
 
-A Minesweeper game with various board shapes (triangular, quadratic, hexagonal) and customizable difficulty levels
+A Minesweeper game with various board shapes (triangular, quadratic, cairo-tiling, hexagonal) and customizable difficulty levels
 
 ## Requirements
 - Webserver
 - **PHP 8.1** or higher
 
 ## Features
-- Multiple board shapes: Triangular, quadratic, and hexagonal grids
+- Multiple board shapes: Triangular, quadratic, cairo and hexagonal grids
 - Adjustable board size
 - Adjustable bomb density
 - screen refresh via AJAX

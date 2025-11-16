@@ -31,11 +31,17 @@ body {
     padding-bottom: 0px;
     padding-top: 1.5px;
 }
+.cairo-container {
+    padding-top: 2px;
+    padding-bottom: 13px;
+    padding-left: 7px;
+    padding-right: 7px;
+}
 .square-container {
     padding-top: 1px;
-    padding-bottom: 1px;
-    padding-left: 3px;
-    padding-right: 3px;
+    padding-bottom: -1px;
+    padding-left: 1px;
+    padding-right: 1px;
 }
 .hexagon-container {
     clip-path: polygon(
@@ -58,35 +64,36 @@ body {
     background-color: #ddd;
     vertical-align: top;
     cursor: pointer;
-    /* Erzwingt, dass alle Events auf die Zelle wirken */
     pointer-events: auto !important;
-    /* Verhindert das "Anheben" beim Klicken */
     -webkit-tap-highlight-color: transparent;
     position: relative;
     align-items: center;
     justify-content: center;
+    display: flex;
 }
 .cell3 {
     width: 45px;
     height: 39px;
-    margin-left: -11.25px;
-    margin-right: -11.25px;
-    margin-bottom: 1px;
-    display: inline-block;
+    margin: 0;
+    margin-left: -10.75px;
+    margin-right: -10.75px;
 }
 .cell4 {
     width: 30px;
     height: 30px;
-    display: inline-block;
-    margin-left: -1.5px;
-    margin-right: -1.5px;
-    margin-top: .5px;
-    margin-bottom: .5px;
+    margin:0;
+}
+.cell5 {
+    width: 42.6px;
+    height: 42.6px;
+    margin: 0;
+    margin-right: -6px;
+    margin-left: -6px;
 }
 .cell6 {
     width: 32px;
-    height: 37px; /* Höhe = width * sqrt(3)/2 für perfekte Sechsecke */
-    display: flex;
+    height: 37px;
+    margin: 0;
     clip-path: polygon(
         0% 25%,
         0% 75%,
@@ -133,25 +140,96 @@ footer {
 h1 {
     color: #333;
 }
-.row3 {
+.row {
     display: flex;
     justify-content: center;
-    position: relative;
-    gap: 1px;
+}
+.row3 {
+    gap: 0px;
+    margin-bottom: 1px;
 }
 .row6 {
-    display: flex;
-    margin-bottom: -8.7px; /* Präziser Y-Versatz */
-    justify-content: center;
+    margin-bottom: -8.6px; /* Präziser Y-Versatz */
     gap: 0.7px; 
 }
+.row4 {
+    margin-bottom: 1px;
+    gap: 1px;
+}
+.row5 {
+    margin-bottom: -12px; /* Präziser Y-Versatz */
+    gap: 0px; 
+}
 .clip-up {
-clip-path: polygon(50% 1%, 0% 100%, 100% 100%);
-line-height: 50px;
+    clip-path: polygon(50% 1%, 0% 100%, 100% 100%);
 }
 
 .clip-down {
-clip-path: polygon(0 0, 100% 0, 50% 99%);
+    clip-path: polygon(0 0, 100% 0, 50% 99%);
+}
+.clip-up.flagged span,
+.clip-up.revealed span {
+    margin-top: 10px;
+}
+.clip-down.flagged span,
+.clip-down.revealed span {
+    margin-top: -10px;
+}
+.quadrant1 {
+    clip-path: polygon(
+        70% 0%,
+        100% 30%,
+        85% 85%,
+        30% 70%,
+        15% 15%
+    );
+}
+.quadrant2 {
+    clip-path: polygon(
+        30% 0%,
+        0% 30%,
+        15% 85%,
+        70% 70%,
+        85% 15%
+    );
+}
+.quadrant3 {
+    clip-path: polygon(
+        30% 100%,
+        0% 70%,
+        15% 15%,
+        70% 30%,
+        85% 85%
+    );
+}
+.quadrant4 {
+    clip-path: polygon(
+        70% 100%,
+        100% 70%,
+        85% 15%,
+        30% 30%,
+        15% 85%
+    );
+}
+.quadrant1.flagged span,
+.quadrant1.revealed span {
+    margin-top: -7px;
+    margin-right: -7px;
+}
+.quadrant2.flagged span,
+.quadrant2.revealed span {
+    margin-top: -7px;
+    margin-right: 7px;
+}
+.quadrant3.flagged span,
+.quadrant3.revealed span {
+    margin-top: 7px;
+    margin-right: 7px;
+}
+.quadrant4.flagged span,
+.quadrant4.revealed span {
+    margin-top: 7px;
+    margin-right: -7px;
 }
 .cell3.flag a.cell {
     /* Erzwingt Styles trotz Überschreibungen */
@@ -174,31 +252,31 @@ a {
     max-width: 90%;
     width: 500px;
 }
-.number1 {
+.number1 span {
     color: blue;
 }
-.number2 {
+.number2 span {
     color: green;
 }
-.number3 {
+.number3 span {
     color: red;
 }
-.number4 {
+.number4 span {
     color: darkblue;
 }
-.number5 {
+.number5 span {
     color: brown;
 }
-.number6 {
+.number6 span {
     color: cyan;
 }
-.number7 {
+.number7 span {
     color: black;
 }
-.number8 {
+.number8 span {
     color: gray;
 }
-.number9 {
+.number9 span {
     animation-name: animation9;
     animation-timing-function: ease-in;
     animation-duration: 2s; 
@@ -209,7 +287,7 @@ a {
     50% { opacity: 0.1; }
     100% { opacity: 1; }    
 }
-.number10 {
+.number10 span {
     animation-name: animation10;
     animation-timing-function: ease-in;
     animation-duration: 7s; 
